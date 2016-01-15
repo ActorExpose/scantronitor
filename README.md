@@ -42,6 +42,11 @@ Install curl for PHP:
 Ubuntu:  sudo apt-get install php5-curl
 SUSE:  zypper in php-curl
 
+Make web root and save all files to it
+---------------------------------------------
+mkdir /var/www/scantronitor
+
+
 ========================================================================
 
 TROUBLESHOOTING
