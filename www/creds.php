@@ -12,9 +12,10 @@
   
   $apiprefix = "https://qualysapi.qg2.apps.qualys.com";
   $username = "YOUR API USERID";
-  $password = "YOUR API PASSWORD";
+  $password = base64_decode("base64 encoded API PASSWORD");
 
   $proxy = "PROXY:PORT";
-  $proxyuserpwd = "PROXYUSER:PROXYPASSWORD";
-  
+  $proxypwd = base64_decode("base64 encoded PROXYPASSWORD");
+  $proxyuserpwd = "PROXYUSER:" . $proxypwd;
+
 ?>
