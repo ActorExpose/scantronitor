@@ -7,7 +7,7 @@ body {
 } 
 
 a {
-    color: #516333;
+    color: #DD6E00;
     font-size: 12px;
     font-weight: bold;
     font-family: verdana,sans-serif;
@@ -44,17 +44,17 @@ h1 {
     padding-top:5px;
     padding-bottom:4px;
     border:2px solid #000000;
-    background-color:#BFD0A4;
+    background-color:#E7972D;
     color:#000;
 }
 
 #datatable tr.alt td {
     color:#000;
-    background-color:#BFD0A4;
+    background-color:#E7972D;
 }
 
 table.header {
-    background-color: #BFD0A4;
+    background-color: #E7972D;
     padding: 10px 10px 10px 10px;
 }               
 
@@ -167,7 +167,7 @@ h3 {
 }
 
 #linkbox td.highlight {
-    background-color: #BFD0A4;
+    background-color: #E7972D;
     font-weight: bold;
     border-bottom: 2px solid #000000;
     border-left:2px solid #000000;
@@ -205,5 +205,5 @@ p.errormsg {
 }
 
 td.altrow {
-    background-color: #dee7d1;
+    background-color: #EDEDED;
 }

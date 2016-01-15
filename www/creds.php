@@ -9,8 +9,12 @@
   #
   # Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.php 
   # ===========================================================
+  
+  $apiprefix = "https://qualysapi.qg2.apps.qualys.com";
+  $username = "YOUR API USERID";
+  $password = "YOUR API PASSWORD";
 
-  $username = "username";
-  $password = "password";
-
+  $proxy = "PROXY:PORT";
+  $proxyuserpwd = "PROXYUSER:PROXYPASSWORD";
+  
 ?>
