@@ -20,8 +20,7 @@
 <? include '../creds.php'?>
 
 <?
-    //$url = "https://qualysapi.qualys.com/msp/scan_running_list.php?";
-    $url = $apiprefix."/msp/scan_running_list.php?";
+    $url = "https://qualysapi.qg2.apps.qualys.com/api/2.0/fo/scan/?action=list&state=Running"; // Qualys API v2 only running scans
     $error = "";
     $aryData = array();
     
@@ -37,22 +36,31 @@
         curl_setopt($ch, CURLOPT_PROXYUSERPWD, $proxyuserpwd);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
 
+	// added these for api 2
+	curl_setopt($ch, CURLOPT_HEADER, 1);
+	curl_setopt($ch, CURLOPT_HTTPHEADER, array('X-Requested-With: Curl'));
 
-    // grab XML data
+    	// grab XML data
 	$xmldata = curl_exec($ch);
-    
+
+	//print $xmldata; // DEBUG
+
+	$indexof = strrpos($xmldata, "<?xml version");
+	$xmldata = substr($xmldata, $indexof);		// strip off the extra text before the xml
+
+	//print $xmldata; // DEBUG
+
+
 	if(!$xmldata){
 		print curl_error($ch);
 	}
-
-	//print $xmldata; // DEBUG
 
     $tag_tree = array();
     $stack = array();
     $i=0;
 
     # this class is for each tag found in the XML return
-    class tag {
+   class tag {
         var $name;
         var $attrs=array();
         var $children;
@@ -68,74 +76,28 @@
             $currenttag = trim($currenttag);
             $currentvalue = trim($currentvalue);
             $name = trim($name);
-    
-            # capture start date
-            if($currenttag=="KEY"&&$currentvalue=="startdate"&&$name!=""&&$name!="KEY") {
-                $aryData[$i][0] = $name;
-                $finishTime= $aryData[$i][0];   #$i++;
-                $temp = split("-",$finishTime);
-                $year = $temp[0];
-                $month = $temp[1];
-                $day = substr($temp[2],0,2);
-                $temp = split(":",$finishTime);
-                $hour = $temp[0];
-                $hour = substr($temp[0],12,strlen($hour)-12);
-                if(strlen($hour)==1) {
-                    $hour = "0" . $hour;
-                }
-
-                $minute = $temp[1];
-                $second = substr($temp[2],0,2);
-                $finishTime = date("Y\-m\-d H:m:s", mktime($hour+5,$minute,$second,$month,$day,$year));
-                $aryData[$i][0]= $finishTime;
-            }
-    
-            # capture scan (but not used)
-            if($currenttag=="SCAN"&&$currentvalue!=""&&$name=="KEY") {
-                $aryData[$i][1] = $currentvalue;
-            }
-    
-            # capture error
-            if($currenttag=="ERROR"&&trim($name)!="") {
-               $error = trim($name);
-            }
-    
-            # capture targets
-            if($currenttag=="KEY"&&$currentvalue=="target"&&$name!=""&&$name!="KEY"&&$name!="]") {
-                if(strlen($aryData[$i][1])!=0) {
-                   $aryData[$i][2] .= trim($name);
-               } else {
-                   $aryData[$i][2] = trim($name);
-               }
-            }
-
-	    # capture type
-	    if($currenttag=="KEY"&&$currentvalue=="type"&&$name!=""&&$name!="KEY"){
-		$aryData[$i][4] = $name;
-	    }
-    
-            # capture status
-            if($currenttag=="KEY"&&$currentvalue=="status"&&$name!=""&&$name!="OPTION_PROFILE"&&$name!="ASSET_GROUPS") {
-               $aryData[$i][3] = $name;
-            }
-    
-	    # capture title
-	    if($currenttag=="ASSET_GROUP_TITLE"&&$name!=""&&$name!="OPTION_PROFILE"){
-		if($aryData[$i][4]!="map"){
-			$aryData[$i][4] = $name;
-		}
+   
+	    # capture v2 start date
+	    if($currenttag=="LAUNCH_DATETIME"&&$name!=""&&$name!="STATUS"){
+		$timestamp = strtotime($name);
+		$aryData[$i][0] = date("m-d h:i:s a", $timestamp)." CST";
 	    }
 
-            # capture profile
-            if($currenttag=="OPTION_PROFILE_TITLE"&&$name!=""&&$name!="SCAN") {
-                //$aryData[$i][4] = $name;
-		if($aryData[$i][4]!="map"){
-			if($aryData[$i][4]=="scan"){
-				$aryData[$i][4] = "AD-HOC SCAN";
-			}
-	                $i++;
-		}
-            }
+	    # catpure v2 profile
+	    if($currenttag=="TITLE"&&$name!=""&&$name!="SCHEDULED"&&$name!="USER_LOGIN"){
+		$aryData[$i][4] = $name;		
+	    }
+
+	    # capture v2 status
+	    if($currenttag=="STATE"&&$name!=""&&$name!="TARGET"){
+		$aryData[$i][3] = $name;		
+	    }
+ 
+	    # capture v2 targets 
+	    if($currenttag=="TARGET"&&$name!=""&&$name!="SCAN"){
+		$aryData[$i][2] = $name;
+		$i++;
+	    }
         }
     }
 
@@ -200,32 +162,28 @@
     <table id="datatable" width="1200">
 	<tr>
 	    <th width="150"><img src="../images/datetime.png" alt="DateTime"></th>
-	    <th width="300"><img src="../images/profile.png" alt="Profile"></th>
+	    <th width="150"><img src="../images/profile.png" alt="Profile"></th>
 	    <th width="650"><img src="../images/targets.png" alt="Targets"></th>
-	    <th width="100"><img src="../images/status.png" alt="Status"></th>
+	    <th width="250"><img src="../images/status.png" alt="Status"></th>
 	</tr>
 
 <?global $aryData;
   global $i;
-  $visiblecount = 0;
-
-  usort($aryData, function($a, $b) {
-      return $a[0] - $b[0];
-  });
-
+  $extraMessage = "";
+  if($dataTotal == 0){
+	$extraMessage = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NO SCANS CURRENTLY RUNNING. Please check the 'Past' or 'Future' page for previously run or not yet run scans.";
+  }
   for($i=0;$i<$dataTotal;$i++) {
-	if($aryData[$i][3]=="RUNNING"){
-		$visiblecount++;
       $aryData[$i][2] = str_replace(",",", ",$aryData[$i][2])?>
-	<tr onMouseOver="this.bgColor='#EDEDED'" onMouseOut="this.bgColor='#ffffff'">
-	    <td align="left"><?=$aryData[$i][0] ?> CST</td>
+	<tr onMouseOver="this.bgColor='#dee7d1'" onMouseOut="this.bgColor='#ffffff'">
+	    <td align="left"><?=$aryData[$i][0] ?></td>
 	    <td align="left"><?=$aryData[$i][4] ?></td>
 	    <td align="left"  width="600"><?=$aryData[$i][2] ?></td>
 	    <td align="left"><?=$aryData[$i][3] ?></td>	
 	</tr> 
-	<?}}?>
+	<?}?>
 	<tr>
-	    <th colspan="4" align="center"><?=$visiblecount?> Total Record(s)</th>
+	    <th colspan="4" align="center"><?=$dataTotal?> Total Record(s)<?=$extraMessage?></th>
 	</tr>
     </table>
     </p>
