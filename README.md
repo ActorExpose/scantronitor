@@ -22,6 +22,7 @@ INSTALLATION
 on to the Qualys API
 3. Done!  You should be able to go you http://[your web server]/scantronitor 
 and view the main page
+4. Extra items you should consider include how you are going to authentication users, secure the API password, and secure a proxy password if needed.
 
 ========================================================================
 
