@@ -341,7 +341,7 @@
 										   <textarea 
 										   name="hosts" 
 										   rows=15 cols=22><?=$HostList?></textarea>
-<p align=left>Enter only a <b><u>IP address</u></b>, or a list of IP addresses,
+<p align=left>Enter an <b><u>IP address or hostname</u></b>, or a list of IP addresses/hostname,
 								   separated by comma (20 entries 
 										   maximum.)</p>
 	<p align=left>Hover over a server block to view the details.</p><br><input 
