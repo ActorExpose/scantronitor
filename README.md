@@ -1,8 +1,10 @@
 =========
-scantronitor
+scantronitor v2.0
 =========
 
-Scan Activity Utility built on top of the Qualys API. Intended for limited, internal use only for non Qualys users.
+Scantronitor: A Window into Scan Activity. Built on Qualys API v2.0. Originally built by Don Franke, Josh Stevens, and Pete Babcock. Intended for limited, internal use only for non Qualys users. 
+
+http://neonprimetime.blogspot.com/2016/01/qualys-scantronitor-2-window-into-scans.html — Edit
 
 Website that primary servers 3 purposes
 1.) Allow search of past scans by IP address
